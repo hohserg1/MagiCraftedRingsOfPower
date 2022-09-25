@@ -38,7 +38,6 @@ public class Main {
     @SideOnly(Side.CLIENT)
     @Mod.EventHandler
     public void initClient(FMLPreInitializationEvent event) {
-        System.out.println("initClient");
         MinecraftForgeClient.registerItemRenderer(ringItem, new ItemRingRenderer());
     }
 
