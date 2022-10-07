@@ -45,6 +45,8 @@ public class Config {
                 spellPartCooldowns.put(spellPart, cooldown);
             }
         }
+
+        cfg.save();
     }
 
 }
