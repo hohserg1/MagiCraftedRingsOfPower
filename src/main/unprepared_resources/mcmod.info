@@ -11,7 +11,7 @@
       "hohserg"
     ],
     "credits": "Thx players of Age of Magic server\nThx @virox for testing",
-    "logoFile": "",
+    "logoFile": "icon.png",
     "screenshots": [],
     "dependencies": [
       "arsmagica2",
