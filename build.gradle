@@ -26,19 +26,28 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.0"
+version = "0.3"
 group = "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "modid"
+archivesBaseName = "MagiCraftedRingsOfPower"
 
 sourceCompatibility = targetCompatibility = '1.8'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
-    runDir = "eclipse"
+    runDir = "run"
     //mappings = "stable_12"
 }
 
+
 dependencies {
+
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    compileOnly "io.gitlab.hohserg.elegant.networking:annotation-processor:3.14"
+    annotationProcessor 'org.projectlombok:lombok:1.18.20', "io.gitlab.hohserg.elegant.networking:annotation-processor:3.14"
+
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
@@ -54,22 +63,25 @@ dependencies {
 
 }
 
-processResources
-        {
-            // this will ensure that this task is redone when the versions change.
-            inputs.property "version", project.version
-            inputs.property "mcversion", project.minecraft.version
+jar {
+    manifest {
+        attributes([
+                "FMLCorePlugin"              : "hohserg.mcrop.hooklib.example.ExampleHookLoader",
+                "FMLCorePluginContainsFMLMod": "true"
+        ])
+    }
+}
 
-            // replace stuff in mcmod.info, nothing else
-            from(sourceSets.main.resources.srcDirs) {
-                include 'mcmod.info'
+processResources {
+    inputs.property "version", version
 
-                // replace version and mcversion
-                expand 'version': project.version, 'mcversion': project.minecraft.version
-            }
+    from('./src/main/unprepared_resources/') {
+        include "mcmod.info"
 
-            // copy everything else, thats not the mcmod.info
-            from(sourceSets.main.resources.srcDirs) {
-                exclude 'mcmod.info'
-            }
-        }
+        expand "mod_version": version
+    }
+
+    from('.') {
+        include "LICENSE.txt"
+    }
+}
