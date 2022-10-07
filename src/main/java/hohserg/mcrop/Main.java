@@ -17,20 +17,16 @@ import hohserg.mcrop.spell.RingShapeUnlockManager;
 import lotr.common.LOTRMod;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
 
 @Mod(modid = "mcrop", name = "MagiCraftedRingsOfPower", dependencies = "required-after:arsmagica2;required-after:lotr;required-after:Baubles")
 public class Main {
 
 
-    public static boolean xpRewardByWearingRings = false;
-
     @Mod.EventHandler
     public void init(FMLPreInitializationEvent event) {
-        Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
-        xpRewardByWearingRings = cfg.get(Configuration.CATEGORY_GENERAL, "xpRewardByWearingRings", false, "if true using rings will give xp and affinity").getBoolean(false);
-
+        Config.load(event);
+        
         ringItem = new RingOfPower();
         GameRegistry.registerItem(ringItem.setUnlocalizedName("ring_of_power"), "ring_of_power");
     }

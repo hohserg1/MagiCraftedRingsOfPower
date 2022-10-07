@@ -13,6 +13,7 @@ import am2.spell.shapes.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import hohserg.mcrop.Config;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -42,78 +43,87 @@ import static hohserg.mcrop.items.RingOfPowerHelper.TargetType.entity;
 public enum RingOfPowerHelper {
     instance;
 
+    private int ticks = 0;
+
     public boolean haveSenseToApplySpell(ItemStack stack, EntityLivingBase player) {
-        World world = player.worldObj;
+        ticks++;
+        if (ticks < Config.clientSideTrottling)
+            return false;
+        else {
+            ticks = 0;
 
-        ISpellShape secondShape = SpellUtils.instance.getShapeForStage(stack, 1);
-        ISpellComponent[] components = secondShape.isPrincipumShape() ?
-                SpellUtils.instance.getComponentsForStage(stack, 2) :
-                SpellUtils.instance.getComponentsForStage(stack, 1);
+            World world = player.worldObj;
 
-        Map<TargetType, List<ISpellComponent>> componentsByTypes = Arrays.stream(components)
-                .flatMap(c -> targetTypeByComponent.get(c.getClass()).stream().map(tt -> Pair.of(tt, c)))
-                .collect(Collectors.<Pair<TargetType, ISpellComponent>, TargetType, List<ISpellComponent>, List<ISpellComponent>>groupingBy(Pair::getLeft, new Collector<Pair<TargetType, ISpellComponent>, List<ISpellComponent>, List<ISpellComponent>>() {
+            ISpellShape secondShape = SpellUtils.instance.getShapeForStage(stack, 1);
+            ISpellComponent[] components = secondShape.isPrincipumShape() ?
+                    SpellUtils.instance.getComponentsForStage(stack, 2) :
+                    SpellUtils.instance.getComponentsForStage(stack, 1);
 
-                    @Override
-                    public Supplier<List<ISpellComponent>> supplier() {
-                        return ArrayList::new;
-                    }
+            Map<TargetType, List<ISpellComponent>> componentsByTypes = Arrays.stream(components)
+                    .flatMap(c -> targetTypeByComponent.get(c.getClass()).stream().map(tt -> Pair.of(tt, c)))
+                    .collect(Collectors.<Pair<TargetType, ISpellComponent>, TargetType, List<ISpellComponent>, List<ISpellComponent>>groupingBy(Pair::getLeft, new Collector<Pair<TargetType, ISpellComponent>, List<ISpellComponent>, List<ISpellComponent>>() {
 
-                    @Override
-                    public BiConsumer<List<ISpellComponent>, Pair<TargetType, ISpellComponent>> accumulator() {
-                        return (acc, e) -> acc.add(e.getRight());
-                    }
+                        @Override
+                        public Supplier<List<ISpellComponent>> supplier() {
+                            return ArrayList::new;
+                        }
 
-                    @Override
-                    public BinaryOperator<List<ISpellComponent>> combiner() {
-                        return (acc1, acc2) -> {
-                            acc1.addAll(acc2);
-                            return acc1;
-                        };
-                    }
+                        @Override
+                        public BiConsumer<List<ISpellComponent>, Pair<TargetType, ISpellComponent>> accumulator() {
+                            return (acc, e) -> acc.add(e.getRight());
+                        }
 
-                    @Override
-                    public Function<List<ISpellComponent>, List<ISpellComponent>> finisher() {
-                        return Function.identity();
-                    }
+                        @Override
+                        public BinaryOperator<List<ISpellComponent>> combiner() {
+                            return (acc1, acc2) -> {
+                                acc1.addAll(acc2);
+                                return acc1;
+                            };
+                        }
 
-                    @Override
-                    public Set<Characteristics> characteristics() {
-                        return ImmutableSet.of(Collector.Characteristics.IDENTITY_FINISH);
-                    }
-                }));
+                        @Override
+                        public Function<List<ISpellComponent>, List<ISpellComponent>> finisher() {
+                            return Function.identity();
+                        }
 
-        TargetGetter targetGetter = targetGetters.get(secondShape.getClass());
+                        @Override
+                        public Set<Characteristics> characteristics() {
+                            return ImmutableSet.of(Collector.Characteristics.IDENTITY_FINISH);
+                        }
+                    }));
 
-        if (targetGetter != null) {
-            List<ISpellComponent> forLiving = componentsByTypes.get(entity);
-            if (forLiving != null && forLiving.size() > 0) {
-                List<EntityLivingBase> targets = targetGetter.findPotionTarget(stack, player);
-                if (targets.size() > 0) {
-                    for (ISpellComponent component : forLiving) {
-                        Potion potion = getBuff(component);
-                        if (potion != null) {
-                            for (EntityLivingBase e : targets) {
-                                if (!e.isPotionActive(potion) || e.getActivePotionEffect(potion).getDuration() < 2 || potion == Potion.nightVision && e.getActivePotionEffect(potion).getDuration() < 10 * 20 + 2)
-                                    return true;
-                            }
-                        } else if (isHeal(component)) {
-                            int healing = SpellUtils.instance.getModifiedInt_Mul(2, stack, player, player, world, 0, SpellModifiers.HEALING);
-                            for (EntityLivingBase e : targets) {
-                                if (e.getMaxHealth() - e.getHealth() >= healing || e.getHealth() < 2)
-                                    return true;
-                            }
-                        } else
-                            return true;
+            TargetGetter targetGetter = targetGetters.get(secondShape.getClass());
+
+            if (targetGetter != null) {
+                List<ISpellComponent> forLiving = componentsByTypes.get(entity);
+                if (forLiving != null && forLiving.size() > 0) {
+                    List<EntityLivingBase> targets = targetGetter.findPotionTarget(stack, player);
+                    if (targets.size() > 0) {
+                        for (ISpellComponent component : forLiving) {
+                            Potion potion = getBuff(component);
+                            if (potion != null) {
+                                for (EntityLivingBase e : targets) {
+                                    if (!e.isPotionActive(potion) || e.getActivePotionEffect(potion).getDuration() < 2 || potion == Potion.nightVision && e.getActivePotionEffect(potion).getDuration() < 10 * 20 + 2)
+                                        return true;
+                                }
+                            } else if (isHeal(component)) {
+                                int healing = SpellUtils.instance.getModifiedInt_Mul(2, stack, player, player, world, 0, SpellModifiers.HEALING);
+                                for (EntityLivingBase e : targets) {
+                                    if (e.getMaxHealth() - e.getHealth() >= healing || e.getHealth() < 2)
+                                        return true;
+                                }
+                            } else
+                                return true;
+                        }
                     }
                 }
+
+                if (componentsByTypes.containsKey(TargetType.block) && targetGetter.findBlockTarget(stack, player))
+                    return true;
             }
 
-            if (componentsByTypes.containsKey(TargetType.block) && targetGetter.findBlockTarget(stack, player))
-                return true;
+            return false;
         }
-
-        return false;
     }
 
     public enum TargetType {

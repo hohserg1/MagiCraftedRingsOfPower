@@ -1,11 +1,14 @@
 package hohserg.mcrop.items;
 
+import am2.api.spell.component.interfaces.ISpellComponent;
 import am2.api.spell.enums.SpellCastResult;
+import am2.spell.SkillManager;
 import am2.spell.SpellHelper;
 import am2.spell.SpellUtils;
 import baubles.common.lib.PlayerHandler;
 import hohserg.elegant.networking.api.ClientToServerPacket;
 import hohserg.elegant.networking.api.ElegantPacket;
+import hohserg.mcrop.Config;
 import lombok.Value;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,13 +18,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 
 import static am2.buffs.BuffList.silence;
-import static hohserg.mcrop.Main.xpRewardByWearingRings;
+import static hohserg.mcrop.Config.xpRewardByWearingRings;
 
 public class RingOfPower extends RingBauble {
 
     @Override
     public void onEquipped(ItemStack itemStack, EntityLivingBase entityLivingBase) {
-        SpellHelper.instance.applyStageToEntity(itemStack, entityLivingBase, entityLivingBase.worldObj, entityLivingBase, 0, xpRewardByWearingRings);
+        //SpellHelper.instance.applyStageToEntity(itemStack, entityLivingBase, entityLivingBase.worldObj, entityLivingBase, 0, xpRewardByWearingRings);
     }
 
     @Override
@@ -50,28 +53,37 @@ public class RingOfPower extends RingBauble {
             if (slot == 1 || slot == 2) {
                 ItemStack stack = PlayerHandler.getPlayerBaubles(player).getStackInSlot(slot);
 
-                long currentTime = player.worldObj.getTotalWorldTime();
+                if (stack != null) {
+                    long currentTime = player.worldObj.getTotalWorldTime();
 
-                if (getNextFreeUsingTime(stack) < currentTime) {
+                    if (getNextFreeUsingTime(stack) < currentTime) {
 
-                    PotionEffect activeSilenceEffect = player.getActivePotionEffect(silence);
-                    player.removePotionEffect(silence.id);
+                        PotionEffect activeSilenceEffect = player.getActivePotionEffect(silence);
+                        player.removePotionEffect(silence.id);
 
-                    SpellCastResult result = SpellHelper.instance.applyStackStage(stack, player, null, player.posX, player.posY, player.posZ, 0, player.worldObj, true, xpRewardByWearingRings, 0);
+                        SpellCastResult result = SpellHelper.instance.applyStackStage(stack, player, null, player.posX, player.posY, player.posZ, 0, player.worldObj, true, xpRewardByWearingRings, 0);
 
-                    if (activeSilenceEffect != null)
-                        player.addPotionEffect(activeSilenceEffect);
+                        if (activeSilenceEffect != null)
+                            player.addPotionEffect(activeSilenceEffect);
 
-                    if (result == SpellCastResult.SUCCESS || result == SpellCastResult.SUCCESS_REDUCE_MANA)
-                        setNextFreeUsingTime(stack, currentTime + getCooldown(stack));
+                        if (result == SpellCastResult.SUCCESS || result == SpellCastResult.SUCCESS_REDUCE_MANA)
+                            setNextFreeUsingTime(stack, currentTime + getCooldown(stack));
+                    }
                 }
-
             }
         }
     }
 
     public static long getCooldown(ItemStack stack) {
-        return 10;
+        ItemStack spellStack = SpellUtils.instance.constructSpellStack(stack);
+        int cd = 0;
+        for (int stage = 0; stage < SpellUtils.instance.numStages(spellStack); stage++) {
+            cd += Config.spellPartCooldowns.getOrDefault(SkillManager.instance.getSkillName(SpellUtils.instance.getShapeForStage(spellStack, stage)), 0);
+            for (ISpellComponent c : SpellUtils.instance.getComponentsForStage(spellStack, stage)) {
+                cd += Config.spellPartCooldowns.getOrDefault(SkillManager.instance.getSkillName(c), 0);
+            }
+        }
+        return cd;
     }
 
     public static long getNextFreeUsingTime(ItemStack stack) {

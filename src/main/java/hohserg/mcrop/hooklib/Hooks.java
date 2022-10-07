@@ -8,10 +8,12 @@ import am2.blocks.tileentities.TileEntityInscriptionTable;
 import am2.containers.ContainerInscriptionTable;
 import am2.containers.slots.SlotInscriptionTable;
 import am2.guis.GuiInscriptionTable;
+import am2.spell.SkillManager;
 import am2.spell.SpellUtils;
 import am2.utility.InventoryUtilities;
 import am2.utility.KeyValuePair;
 import cpw.mods.fml.relauncher.ReflectionHelper;
+import hohserg.mcrop.Config;
 import hohserg.mcrop.hooklib.asm.Hook;
 import hohserg.mcrop.hooklib.asm.ReturnCondition;
 import hohserg.mcrop.items.RingBase;
@@ -41,8 +43,8 @@ public class Hooks {
 
     @Hook(targetMethod = "spellPartIsValidAddition", returnCondition = ReturnCondition.ON_TRUE, booleanReturnConstant = false)
     public static boolean ringShapeOnlyFirst(GuiInscriptionTable guiInscriptionTable, ISkillTreeEntry part) {
+        ContainerInscriptionTable containerInscriptionTable = (ContainerInscriptionTable) guiInscriptionTable.inventorySlots;
         if (part == ringShape) {
-            ContainerInscriptionTable containerInscriptionTable = (ContainerInscriptionTable) guiInscriptionTable.inventorySlots;
             if (containerInscriptionTable.getCurrentRecipeSize() > 0)
                 return true;
 
@@ -53,7 +55,9 @@ public class Hooks {
                     }
                 }
             }
-        }
+        } else if (containerInscriptionTable.currentRecipeContains(ringShape))
+            return !Config.allowedSpellParts.contains(SkillManager.instance.getSkillName(part));
+
         return false;
     }
 
