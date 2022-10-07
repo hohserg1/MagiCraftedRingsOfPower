@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-FMLCorePlugin: hohserg.mcrop.hooklib.example.ExampleHookLoader
-FMLCorePluginContainsFMLMod: true
-Created-By: 1.7.0 (Oracle Corporation)
