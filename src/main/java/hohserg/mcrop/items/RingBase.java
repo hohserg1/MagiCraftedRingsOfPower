@@ -12,6 +12,9 @@ import static hohserg.mcrop.items.RingBase.Type.*;
 
 
 public class RingBase extends Item {
+    {
+        setMaxStackSize(1);
+    }
 
     public enum Type {
         silver, gold, mithril
