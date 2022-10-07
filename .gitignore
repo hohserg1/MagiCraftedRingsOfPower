@@ -41,4 +41,5 @@ hs_err_pid*
 /src/main/scala/itemtransformhelper/
 /src/main/resources/assets/itemtransformhelper/
 /libs/
+/src/main/generated/
 
