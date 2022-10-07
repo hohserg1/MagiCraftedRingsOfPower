@@ -15,7 +15,8 @@
     "screenshots": [],
     "dependencies": [
       "arsmagica2",
-      "lotr"
+      "lotr",
+      "Baubles"
     ]
   }
 ]
