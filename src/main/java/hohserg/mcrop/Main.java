@@ -20,7 +20,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
 
-@Mod(modid = "mcrop", name = "MagiCraftedRingsOfPower", dependencies = "required-after:arsmagica2;required-after:lotr")
+@Mod(modid = "mcrop", name = "MagiCraftedRingsOfPower", dependencies = "required-after:arsmagica2;required-after:lotr;required-after:Baubles")
 public class Main {
 
 
