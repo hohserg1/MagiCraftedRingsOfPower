@@ -31,8 +31,8 @@ public class Config {
                 "NightVision", "PhysicalDamage", "Plant", "Plow", "RandomTeleport", "Recall", "Reflect", "Regeneration",
                 "Repel", "Rift", "Shield", "Slow", "Slowfall", "Storm", "SwiftSwim", "Telekinesis", "Transplace",
                 "TrueSight", "WaterBreathing", "WateryGrave", "Charm", "Drown", "Blizzard", "Daylight", "FallingStar",
-                "FireRain", "ManaLink", "ManaShield", "Moonrise", "WizardsAutumn", "Appropriation", "Fury", "Silence",
-                "PlaceBlock", "Shrink", "Bounce", "Speed", "Gravity", "Damage", "Healing", "VelocityAdded", "Radius",
+                "FireRain", "ManaLink", "ManaShield", "Moonrise", "WizardsAutumn", "Fury", "Silence",
+                "Shrink", "Bounce", "Speed", "Gravity", "Damage", "Healing", "VelocityAdded", "Radius",
                 "Duration", "RuneProcs", "Range", "Lunar", "TargetNonSolid", "Solar", "Piercing", "Colour",
                 "MiningPower", "Prosperity", "BuffPower", "Dismembering", "FeatherTouch"
         }, "list of spell parts which allow to use with ring shape").getStringList());
