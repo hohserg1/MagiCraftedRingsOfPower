@@ -34,8 +34,8 @@ public class RingShapeUnlockManager {
                         if (biomeGen == LOTRBiome.eregion) {
                             checkEregionSpell(player, stack);
 
-                        } else if (biomeGen == LOTRBiome.mordor) {
-                            if (player.getDistanceSq(92718, 0, 60970) < 100 * 100) {
+                        } else if (biomeGen == LOTRBiome.gorgoroth) {
+                            if (player.getDistanceSq(92718, 128, 60970) < 130 * 130) {
                                 checkOrodruinSpell(player, stack);
                             }
                         }
