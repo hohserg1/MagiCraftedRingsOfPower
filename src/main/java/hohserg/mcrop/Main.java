@@ -22,11 +22,10 @@ import net.minecraftforge.oredict.OreDictionary;
 @Mod(modid = "mcrop", name = "MagiCraftedRingsOfPower", dependencies = "required-after:arsmagica2;required-after:lotr;required-after:Baubles")
 public class Main {
 
-
     @Mod.EventHandler
     public void init(FMLPreInitializationEvent event) {
         Config.load(event);
-        
+
         ringItem = new RingOfPower();
         GameRegistry.registerItem(ringItem.setUnlocalizedName("ring_of_power"), "ring_of_power");
     }
