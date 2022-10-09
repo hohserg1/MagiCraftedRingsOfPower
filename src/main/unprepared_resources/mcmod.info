@@ -16,7 +16,8 @@
     "dependencies": [
       "arsmagica2",
       "lotr",
-      "Baubles"
+      "Baubles",
+      "elegant_networking"
     ]
   }
 ]
